@@ -8,4 +8,5 @@
     <string name="stop_button_default">STOP</string>
     <string name="distance_default">0.00 km</string>
     <string name="go_button_pause">PAUSE</string>
+    <string name="action_open">Open routes</string>
 </resources>

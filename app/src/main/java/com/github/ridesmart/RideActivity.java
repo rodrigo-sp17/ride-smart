@@ -7,6 +7,7 @@ import androidx.core.content.ContextCompat;
 import androidx.room.Room;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
@@ -14,6 +15,8 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
@@ -40,8 +43,7 @@ import java.util.Locale;
 
 
 public class RideActivity extends AppCompatActivity
-        implements OnMapReadyCallback {
-    //View.OnClickListener
+        implements OnMapReadyCallback{
 
     private static final String TAG = RideActivity.class.getSimpleName();
     private GoogleMap map;
@@ -126,6 +128,25 @@ public class RideActivity extends AppCompatActivity
         super.onPause();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_ride, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_open:
+                // Starts RoutesActivity
+                Intent intent = new Intent(this, RoutesActivity.class);
+                this.startActivity(intent);
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
     public void onGoClick(View view) {
         if (isRecording) {
