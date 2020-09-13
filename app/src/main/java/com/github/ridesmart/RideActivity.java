@@ -114,8 +114,6 @@ public class RideActivity extends AppCompatActivity
         // Construct a FusedLocationProviderClient.
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Instantiates a Location Callback
-        locationCallback = new MonitorCallback();
     }
 
     @Override
@@ -187,7 +185,6 @@ public class RideActivity extends AppCompatActivity
         /*
          * Requests location permission from user. If permission already granted, returns.
          */
-        // TODO - Implement permission request for background location
 
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -234,7 +231,7 @@ public class RideActivity extends AppCompatActivity
                 getLocationPermission();
             }
         } catch (SecurityException e) {
-            Log.e("Exception: %s", e.getMessage());
+            Log.e("Exception: %s", e.getMessage(), e);
         }
     }
 
@@ -271,6 +268,7 @@ public class RideActivity extends AppCompatActivity
 
 
     private void startRecording() {
+        getLocationPermission();
         createLocationRequest();
         startLocationUpdates();
         route = new Route();
@@ -338,37 +336,41 @@ public class RideActivity extends AppCompatActivity
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
                 .addLocationRequest(locationRequest);
+
+        // Instantiates a Location Callback
+        locationCallback = new MonitorCallback();
     }
 
     private class MonitorCallback extends LocationCallback {
         @Override
         public void onLocationResult(LocationResult locationResult) {
-            //super.onLocationResult(locationResult);
             if (locationResult == null) {
-                Log.println(Log.INFO,TAG,"Location result is null - returning...");
+                Log.i(TAG,"Location result is null - returning...");
                 return;
             }
 
-            Location lastLocation = locationResult.getLastLocation();
+            // Gest last location from result, updates field and adds to route
+            lastKnownLocation = locationResult.getLastLocation();
+            route.addLocation(lastKnownLocation);
 
-            route.addLocation(lastLocation);
-
-            // Sets speedView with last location speed info, in km/h
-            // TODO - implement proper speed conversion
+            /*
+             Sets speedView with last location speed info, in km/h
+             TODO - implement proper speed conversion
+            */
             String speed = String.format(Locale.getDefault(),"%.1f",
-                    (lastLocation.getSpeed() * 3.6)) + " km/h";
+                    (lastKnownLocation.getSpeed() * 3.6)) + " km/h";
             speedView.setText(speed);
 
-            // Sets distanceView with total route distance, in KM
+            //Sets distanceView with total route distance, in KM
             String distance = String.format(Locale.getDefault(),"%.2f",
                     route.getTotalDistance()) + " km";
             distanceView.setText(distance);
 
-            // Adds last location to PolylineOptions
-            LatLng p = new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude());
-            Log.println(Log.INFO, TAG, p.toString());
+            //Adds last location to PolylineOptions
+            LatLng p = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
             polylineOptions.add(p);
 
+            // Updates Route Polyline
             track = map.addPolyline(polylineOptions);
         }
     }
