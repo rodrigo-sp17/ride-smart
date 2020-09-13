@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".RideActivity">
+    
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/ride_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+        tools:ignore="MissingConstraints" />
+
+    <fragment
+        android:id="@+id/main_map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="100"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0"
+        app:uiCompass="true"
+        tools:context=".RideActivity" />
+
+    <Chronometer
+        android:id="@+id/time_view"
+        android:layout_width="0dp"
+        android:layout_height="45dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="#FFFFFF"
+        android:enabled="true"
+        android:fontFamily="sans-serif-black"
+        android:includeFontPadding="true"
+        android:padding="5dp"
+        android:text="@string/chronometer_default"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintBottom_toBottomOf="@+id/main_map"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/main_map"
+        app:layout_constraintVertical_bias="0.8" />
+
+    <TextView
+        android:id="@+id/speed_view"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="16dp"
+        android:background="#FFFFFF"
+        android:includeFontPadding="true"
+        android:padding="5dp"
+        android:text="@string/speed_default"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintEnd_toStartOf="@id/distance_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/time_view" />
+
+    <Button
+        android:id="@+id/go_button"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="#4CAF50"
+        android:fontFamily="sans-serif-black"
+        android:onClick="onGoClick"
+        android:text="@string/go_button_default"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintBottom_toBottomOf="@+id/main_map"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/speed_view"
+        app:layout_constraintVertical_bias="0.25" />
+
+    <Button
+        android:id="@+id/resume_button"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="#4CAF50"
+        android:fontFamily="sans-serif-black"
+        android:onClick="onResumeClick"
+        android:text="@string/resume_button_default"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/main_map"
+        app:layout_constraintEnd_toStartOf="@+id/stop_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/speed_view"
+        app:layout_constraintVertical_bias="0.25" />
+
+    <Button
+        android:id="@+id/stop_button"
+        android:layout_width="0dp"
+        android:layout_height="60dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:background="#F3001C"
+        android:fontFamily="sans-serif-black"
+        android:onClick="onStopClick"
+        android:text="@string/stop_button_default"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/main_map"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/resume_button"
+        app:layout_constraintTop_toBottomOf="@+id/speed_view"
+        app:layout_constraintVertical_bias="0.25" />
+
+    <TextView
+        android:id="@+id/distance_view"
+        android:layout_width="0dp"
+        android:layout_height="40dp"
+        android:layout_marginEnd="16dp"
+        android:background="#FFFFFF"
+        android:padding="5dp"
+        android:text="@string/distance_default"
+        android:textAlignment="center"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/speed_view"
+        app:layout_constraintTop_toBottomOf="@+id/time_view" />
+</androidx.constraintlayout.widget.ConstraintLayout>

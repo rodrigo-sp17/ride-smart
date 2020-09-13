@@ -1,0 +1,24 @@
+<resources>
+    <!--
+
+
+    To get one, follow this link, follow the directions and press "Create" at the end:
+
+    https://console.developers.google.com/flows/enableapi?apiid=maps_android_backend&keyType=CLIENT_SIDE_ANDROID&r=6A:F3:52:EF:12:C1:AA:76:E3:2C:AB:0A:B0:BF:B0:CC:42:FD:4D:67%3Bcom.github.ridesmart
+
+    You can also add your credentials to an existing key, using these values:
+
+    Package name:
+    com.github.ridesmart
+
+    SHA-1 certificate fingerprint:
+    6A:F3:52:EF:12:C1:AA:76:E3:2C:AB:0A:B0:BF:B0:CC:42:FD:4D:67
+
+    Alternatively, follow the directions here:
+    https://developers.google.com/maps/documentation/android/start#get-key
+
+    Once you have your key (it starts with "AIza"), replace the "google_maps_key"
+    string in this file.
+    -->
+    <string name="google_maps_key" templateMergeStrategy="preserve" translatable="false">AIzaSyB8zYvUrpF72hm9nNZEnxBtfDeCHA6sgp0</string>
+</resources>
