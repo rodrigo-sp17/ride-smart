@@ -9,4 +9,7 @@
     <string name="distance_default">0.00 km</string>
     <string name="go_button_pause">PAUSE</string>
     <string name="action_open">Open routes</string>
+    <string name="notification_text">Location running...</string>
+    <string name="notification_title">RideSmart</string>
+    <string name="ticker_text">ticker default</string>
 </resources>

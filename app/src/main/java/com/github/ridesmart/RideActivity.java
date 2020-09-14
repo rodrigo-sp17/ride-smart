@@ -7,10 +7,14 @@ import androidx.core.content.ContextCompat;
 import androidx.room.Room;
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -41,7 +45,6 @@ import com.google.android.gms.tasks.Task;
 
 import java.util.Locale;
 
-
 public class RideActivity extends AppCompatActivity
         implements OnMapReadyCallback{
 
@@ -60,9 +63,12 @@ public class RideActivity extends AppCompatActivity
     // Location of mobile from fused location provider
     private Location lastKnownLocation;
     private FusedLocationProviderClient fusedLocationProviderClient;
+    private RSLocationService locationService;
+    private BroadcastReceiver receiver;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
     private boolean requestingLocationUpdates;
+    private Intent serviceIntent;
 
     // Default zoom
     private static final int DEFAULT_ZOOM = 15;
@@ -111,8 +117,14 @@ public class RideActivity extends AppCompatActivity
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
 
-        // Construct a FusedLocationProviderClient.
+        // Gets a FusedLocationProviderClient.
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        // Instantiates the broadcast receiver
+        receiver = new RSReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("LOCATION_CHANGED");
+        this.registerReceiver(receiver, filter);
 
     }
 
@@ -185,7 +197,6 @@ public class RideActivity extends AppCompatActivity
         /*
          * Requests location permission from user. If permission already granted, returns.
          */
-
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationPermissionGranted = true;
@@ -269,8 +280,11 @@ public class RideActivity extends AppCompatActivity
 
     private void startRecording() {
         getLocationPermission();
-        createLocationRequest();
-        startLocationUpdates();
+        serviceIntent = new Intent(this, RSLocationService.class);
+        startService(serviceIntent);
+
+        polylineOptions = new PolylineOptions();
+        polylineOptions.color(Color.BLUE);
         route = new Route();
         timeView.start();
         isRecording = true;
@@ -279,12 +293,12 @@ public class RideActivity extends AppCompatActivity
     private void pauseRecording() {
         timeWhenStopped = timeView.getBase() - SystemClock.elapsedRealtime();
         timeView.stop();
-        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        stopService(serviceIntent);
         requestingLocationUpdates = false;
     }
 
     private void resumeRecording() {
-        startLocationUpdates();
+        startService(serviceIntent);
         timeView.setBase(SystemClock.elapsedRealtime() + timeWhenStopped);
         timeView.start();
     }
@@ -313,65 +327,37 @@ public class RideActivity extends AppCompatActivity
     }
 
 
-    private void startLocationUpdates() {
-        polylineOptions = new PolylineOptions();
-        polylineOptions.color(Color.BLUE);
-
-        if (ActivityCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
-                ActivityCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            getLocationPermission();
-        }
-        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
-                Looper.getMainLooper());
-        requestingLocationUpdates = true;
-    }
-
-    protected void createLocationRequest() {
-        locationRequest = LocationRequest.create();
-        locationRequest.setInterval(LOCATION_REQUEST_INTERVAL);
-        locationRequest.setFastestInterval(LOCATION_REQUEST_FAST_INTERVAL);
-        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
-                .addLocationRequest(locationRequest);
-
-        // Instantiates a Location Callback
-        locationCallback = new MonitorCallback();
-    }
-
-    private class MonitorCallback extends LocationCallback {
+    private class RSReceiver extends BroadcastReceiver {
         @Override
-        public void onLocationResult(LocationResult locationResult) {
-            if (locationResult == null) {
-                Log.i(TAG,"Location result is null - returning...");
-                return;
+        public void onReceive(Context context, Intent intent) {
+            Location location = intent.getParcelableExtra(RSLocationService.EXTRA_LOCATION);
+            if (location != null) {
+                // Gets last location from result, updates field and adds to route
+                lastKnownLocation = location;
+                route.addLocation(lastKnownLocation);
+
+                /*
+                    Sets speedView with last location speed info, in km/h
+                    TODO - implement proper speed conversion
+                */
+                String speed = String.format(Locale.getDefault(),"%.1f",
+                        (lastKnownLocation.getSpeed() * 3.6)) + " km/h";
+                speedView.setText(speed);
+
+                // Sets distanceView with total route distance, in KM
+                String distance = String.format(Locale.getDefault(),"%.2f",
+                        route.getTotalDistance()) + " km";
+                distanceView.setText(distance);
+
+                // Adds last location to PolylineOptions
+                LatLng p = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
+                polylineOptions.add(p);
+
+                // Updates Route Polyline
+                track = map.addPolyline(polylineOptions);
+            } else {
+                Log.i(TAG, "Location is null");
             }
-
-            // Gest last location from result, updates field and adds to route
-            lastKnownLocation = locationResult.getLastLocation();
-            route.addLocation(lastKnownLocation);
-
-            /*
-             Sets speedView with last location speed info, in km/h
-             TODO - implement proper speed conversion
-            */
-            String speed = String.format(Locale.getDefault(),"%.1f",
-                    (lastKnownLocation.getSpeed() * 3.6)) + " km/h";
-            speedView.setText(speed);
-
-            //Sets distanceView with total route distance, in KM
-            String distance = String.format(Locale.getDefault(),"%.2f",
-                    route.getTotalDistance()) + " km";
-            distanceView.setText(distance);
-
-            //Adds last location to PolylineOptions
-            LatLng p = new LatLng(lastKnownLocation.getLatitude(), lastKnownLocation.getLongitude());
-            polylineOptions.add(p);
-
-            // Updates Route Polyline
-            track = map.addPolyline(polylineOptions);
         }
     }
 }
