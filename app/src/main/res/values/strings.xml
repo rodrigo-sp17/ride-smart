@@ -9,7 +9,11 @@
     <string name="distance_default">0.00 km</string>
     <string name="go_button_pause">PAUSE</string>
     <string name="action_open">Open routes</string>
-    <string name="notification_text">Location running...</string>
+    <string name="notification_text">Location running</string>
     <string name="notification_title">RideSmart</string>
     <string name="ticker_text">ticker default</string>
+    <string name="rationale_title">We need permission to monitor your routes</string>
+    <string name="rationale_message">This app relies on location services to provide route recording and route monitoring. All the location data is stored locally on your phone, and we do not collect such information for any purposes whatsoever.</string>
+    <string name="permission_not_granted">Can\'t start! Location permissions not granted!</string>
+    <string name="go_button_new">START NEW ROUTE</string>
 </resources>

@@ -1,20 +1,24 @@
 package com.github.ridesmart;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.room.Room;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.net.ConnectivityManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.os.SystemClock;
@@ -25,6 +29,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.widget.Toolbar;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -42,6 +48,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Locale;
 
@@ -56,8 +63,6 @@ public class RideActivity extends AppCompatActivity
 
     // Location permission handling
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
-    private static final int LOCATION_REQUEST_INTERVAL = 2000;
-    private static final int LOCATION_REQUEST_FAST_INTERVAL = 500;
     private boolean locationPermissionGranted;
 
     // Location of mobile from fused location provider
@@ -65,8 +70,6 @@ public class RideActivity extends AppCompatActivity
     private FusedLocationProviderClient fusedLocationProviderClient;
     private RSLocationService locationService;
     private BroadcastReceiver receiver;
-    private LocationRequest locationRequest;
-    private LocationCallback locationCallback;
     private boolean requestingLocationUpdates;
     private Intent serviceIntent;
 
@@ -95,7 +98,7 @@ public class RideActivity extends AppCompatActivity
         setContentView(R.layout.activity_ride);
 
         // Sets up the toolbar
-        Toolbar rideToolbar = (Toolbar) findViewById(R.id.ride_toolbar);
+        Toolbar rideToolbar = findViewById(R.id.ride_toolbar);
         setSupportActionBar(rideToolbar);
 
         // Initiates database
@@ -125,7 +128,6 @@ public class RideActivity extends AppCompatActivity
         IntentFilter filter = new IntentFilter();
         filter.addAction("LOCATION_CHANGED");
         this.registerReceiver(receiver, filter);
-
     }
 
     @Override
@@ -136,6 +138,12 @@ public class RideActivity extends AppCompatActivity
     @Override
     protected void onPause() {
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(serviceIntent);
     }
 
     @Override
@@ -182,6 +190,10 @@ public class RideActivity extends AppCompatActivity
         stopRecording();
         resumeButton.setVisibility(View.GONE);
         stopButton.setVisibility(View.GONE);
+
+        goButton.setVisibility(View.VISIBLE);
+        goButton.setText(R.string.go_button_new);
+        goButton.setBackgroundColor(Color.GREEN);
     }
 
 
@@ -200,12 +212,34 @@ public class RideActivity extends AppCompatActivity
         if (ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationPermissionGranted = true;
+        } else if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
+            // Show rationale and request permissions
+            showContextAlert();
         } else {
             ActivityCompat.requestPermissions(this,
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    1);
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
         }
+
         updateLocationUI();
+    }
+
+    // Shows an AlertDialog to provide context for location permissions request
+    private void showContextAlert() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.rationale_title)
+                .setMessage(R.string.rationale_message)
+                .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        ActivityCompat.requestPermissions(RideActivity.this,
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION);
+                    }
+                })
+                .create()
+                .show();
     }
 
     @Override
@@ -242,7 +276,7 @@ public class RideActivity extends AppCompatActivity
                 getLocationPermission();
             }
         } catch (SecurityException e) {
-            Log.e("Exception: %s", e.getMessage(), e);
+            Log.e(TAG, "Could not update the location UI, no permissions", e);
         }
     }
 
@@ -280,14 +314,23 @@ public class RideActivity extends AppCompatActivity
 
     private void startRecording() {
         getLocationPermission();
-        serviceIntent = new Intent(this, RSLocationService.class);
-        startService(serviceIntent);
+        if (locationPermissionGranted) {
+            isRecording = true;
+            serviceIntent = new Intent(this, RSLocationService.class);
+            startService(serviceIntent);
 
-        polylineOptions = new PolylineOptions();
-        polylineOptions.color(Color.BLUE);
-        route = new Route();
-        timeView.start();
-        isRecording = true;
+            // Starts new route with a polyline
+            polylineOptions = new PolylineOptions();
+            polylineOptions.color(Color.BLUE);
+            route = new Route();
+
+            // Starts chronometer
+            timeView.setBase(SystemClock.elapsedRealtime());
+            timeView.start();
+
+        } else {
+            Toast.makeText(this, R.string.permission_not_granted, Toast.LENGTH_LONG).show();
+        }
     }
 
     private void pauseRecording() {
@@ -305,12 +348,16 @@ public class RideActivity extends AppCompatActivity
 
     private void stopRecording() {
         // TODO - wrap route details
+        stopService(serviceIntent);
         long routeDuration = SystemClock.elapsedRealtime() - timeView.getBase();
         route.setRouteDuration(routeDuration);
         // TODO - save route to disk
         saveRoute(route);
+
+        isRecording = false;
     }
 
+    // Uses DAO to save route to database
     private void saveRoute(Route route) {
         RouteDAO dao = database.routeDAO();
         long routeId = dao.insertRouteDetails(route.details);
@@ -332,6 +379,7 @@ public class RideActivity extends AppCompatActivity
         public void onReceive(Context context, Intent intent) {
             Location location = intent.getParcelableExtra(RSLocationService.EXTRA_LOCATION);
             if (location != null) {
+
                 // Gets last location from result, updates field and adds to route
                 lastKnownLocation = location;
                 route.addLocation(lastKnownLocation);

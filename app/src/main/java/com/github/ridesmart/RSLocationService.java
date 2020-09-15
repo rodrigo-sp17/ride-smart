@@ -95,6 +95,10 @@ public class RSLocationService extends Service {
         return null;
     }
 
+    @Override
+    public void onDestroy() {
+        stopLocationUpdates();
+    }
 
     public void startLocationUpdates() {
         Log.i(TAG, "Starting location updates...");
@@ -108,14 +112,6 @@ public class RSLocationService extends Service {
         } catch (SecurityException e) {
             Log.e(TAG, "Location permission not available. Could not start updates. " + e);
         }
-    }
-
-    public void pauseLocationUpdates() {
-
-    }
-
-    public void resumeLocationUpdates() {
-
     }
 
     public void stopLocationUpdates() {
