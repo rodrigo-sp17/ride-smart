@@ -22,25 +22,26 @@ public interface RouteDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insertRouteNodes(RouteNode node);
 
+
     @Transaction
     @Query("SELECT * FROM routedetails")
     List<Route> getAllRoutes();
 
     @Update
-    void updateRouteDetails(RouteDetails... routes);
+    void updateRouteDetails(RouteDetails routeDetails);
 
     @Update
-    void updateTurns(Turn... turns);
+    void updateTurns(Turn turn);
 
     @Update
-    void updateRouteNodes(RouteNode... nodes);
+    void updateRouteNodes(RouteNode node);
 
     @Delete
-    void deleteRouteDetails(RouteDetails... routes);
+    void deleteRouteDetails(RouteDetails routeDetails);
 
     @Delete
-    void deleteTurns(Turn... turns);
+    void deleteTurns(Turn turn);
 
     @Delete
-    void deleteRouteNodes(RouteNode... nodes);
+    void deleteRouteNodes(RouteNode node);
 }

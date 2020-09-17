@@ -22,7 +22,7 @@ public class Route {
             parentColumn = "routeId",
             entityColumn = "routeCreatorId"
     )
-    public List<RouteNode> routePoints;
+    public List<RouteNode> routeNodes;
 
     @Relation(
             parentColumn = "routeId",
@@ -39,22 +39,22 @@ public class Route {
 
     public Route() {
         details = new RouteDetails();
-        routePoints = new ArrayList<>();
+        routeNodes = new ArrayList<>();
         turns = new ArrayList<>();
     }
 
     public void addLocation(Location location) {
-        routePoints.add(new RouteNode(location));
+        routeNodes.add(new RouteNode(location));
 
-        int size = routePoints.size();
+        int size = routeNodes.size();
         if (size > 1) {
             // Adds this last leg distance to total route distance
-            float lastLegDistance = routePoints.get(size - 2).distanceTo(location);
+            float lastLegDistance = routeNodes.get(size - 2).distanceTo(location);
             details.totalDistance += lastLegDistance;
 
             // Calculates the corrected bearing change
-            float lastBearingDifference = routePoints.get(size - 1).getBearing()
-                    - routePoints.get(size - 2).getBearing();
+            float lastBearingDifference = routeNodes.get(size - 1).getBearing()
+                    - routeNodes.get(size - 2).getBearing();
             lastBearingDifference = Turn.correctedBearingChange(lastBearingDifference);
 
 

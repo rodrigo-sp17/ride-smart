@@ -17,4 +17,6 @@
     <string name="permission_not_granted">Can\'t start! Location permissions not granted!</string>
     <string name="go_button_new">START NEW ROUTE</string>
     <string name="routes_toolbar_title">Routes List</string>
+    <string name="snackbar_undo_text">Route deleted</string>
+    <string name="snackbar_undo_action">Undo</string>
 </resources>

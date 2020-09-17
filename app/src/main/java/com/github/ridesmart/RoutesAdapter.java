@@ -4,11 +4,15 @@ import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +20,7 @@ import java.util.Locale;
 
 public class RoutesAdapter extends RecyclerView.Adapter<RoutesAdapter.RouteViewHolder>  {
     public class RouteViewHolder extends RecyclerView.ViewHolder {
+
         LinearLayout containerView;
         TextView routeNameView;
 
@@ -26,7 +31,18 @@ public class RoutesAdapter extends RecyclerView.Adapter<RoutesAdapter.RouteViewH
         }
     }
 
+    RecyclerView attachedRecyclerView;
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        attachedRecyclerView = recyclerView;
+    }
+
     private List<Route> routes = RoutesActivity.database.routeDAO().getAllRoutes();
+
+    Route recentlyDeletedRoute;
+    int recentlyDeletedRoutePosition;
 
     @NonNull
     @Override
@@ -46,6 +62,53 @@ public class RoutesAdapter extends RecyclerView.Adapter<RoutesAdapter.RouteViewH
     @Override
     public int getItemCount() {
         return routes.size();
+    }
+
+    public void deleteItem(int position) {
+        recentlyDeletedRoute = routes.get(position);
+        recentlyDeletedRoutePosition = position;
+        RouteDAO dao = RoutesActivity.database.routeDAO();
+
+        dao.deleteRouteDetails(recentlyDeletedRoute.details);
+
+        for (Turn t : recentlyDeletedRoute.turns) {
+            dao.deleteTurns(t);
+        }
+
+        for (RouteNode n : recentlyDeletedRoute.routeNodes) {
+            dao.deleteRouteNodes(n);
+        }
+
+        routes.remove(position);
+
+        notifyDataSetChanged();
+
+        showUndoSnackbar();
+    }
+
+    private void showUndoSnackbar() {
+        View v = attachedRecyclerView.getRootView().findViewById(R.id.coordinator_layout);
+
+        Snackbar snack = Snackbar.make(v, R.string.snackbar_undo_text, Snackbar.LENGTH_LONG);
+        snack.setAction(R.string.snackbar_undo_action, a -> undoDelete());
+        snack.show();
+    }
+
+
+    private void undoDelete() {
+        routes.add(recentlyDeletedRoutePosition, recentlyDeletedRoute);
+
+        // Adds the deleted item to the database again
+        RouteDAO dao = RoutesActivity.database.routeDAO();
+        dao.insertRouteDetails(recentlyDeletedRoute.details);
+        for (Turn t : recentlyDeletedRoute.turns) {
+            dao.insertTurns(t);
+        }
+        for (RouteNode n : recentlyDeletedRoute.routeNodes) {
+            dao.insertRouteNodes(n);
+        }
+
+        notifyDataSetChanged();
     }
 
 }
