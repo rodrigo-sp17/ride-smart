@@ -311,6 +311,7 @@ public class RideActivity extends AppCompatActivity
             startService(serviceIntent);
 
             // Starts new route with a polyline
+            map.clear();
             polylineOptions = new PolylineOptions();
             polylineOptions.color(Color.BLUE);
             route = new Route();
