@@ -17,17 +17,22 @@ import com.google.android.material.snackbar.Snackbar;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class RoutesAdapter extends RecyclerView.Adapter<RoutesAdapter.RouteViewHolder>  {
     public class RouteViewHolder extends RecyclerView.ViewHolder {
 
         LinearLayout containerView;
         TextView routeNameView;
+        TextView routeDistanceView;
+        TextView routeDurationView;
 
         RouteViewHolder(View view) {
             super(view);
             containerView = view.findViewById(R.id.routes_row);
             routeNameView = view.findViewById(R.id.route_name_text);
+            routeDistanceView = view.findViewById(R.id.route_total_distance_text);
+            routeDurationView = view.findViewById(R.id.route_total_duration_text);
         }
     }
 
@@ -55,7 +60,26 @@ public class RoutesAdapter extends RecyclerView.Adapter<RoutesAdapter.RouteViewH
     @Override
     public void onBindViewHolder(@NonNull RouteViewHolder holder, int position) {
         Route current = routes.get(position);
-        holder.routeNameView.setText(String.format(Locale.getDefault(),"%d",current.details.routeId));
+
+        holder.routeNameView.setText(String.format(
+                Locale.getDefault(),
+                "%d",
+                current.details.routeId));
+
+        double durationMinutes = TimeUnit.MILLISECONDS.toSeconds(current.details.routeDuration) / 60;
+        holder.routeDurationView.setText(String.format(
+                Locale.getDefault(),
+                "%.1f min",
+                durationMinutes
+        ));
+
+        float distanceInKM = current.details.totalDistance / 1000;
+        holder.routeDistanceView.setText(String.format(
+                Locale.getDefault(),
+                "%.2f km",
+                distanceInKM
+        ));
+
         holder.containerView.setTag(current);
     }
 
