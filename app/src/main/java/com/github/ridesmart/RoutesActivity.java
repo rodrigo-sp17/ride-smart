@@ -1,6 +1,7 @@
 package com.github.ridesmart;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
@@ -24,6 +25,11 @@ public class RoutesActivity extends AppCompatActivity {
         database = Room.databaseBuilder(getApplicationContext(), RideDatabase.class, "rideDB" )
                 .allowMainThreadQueries()
                 .build();
+
+        // Sets up the toolbar
+        Toolbar routesToolbar = findViewById(R.id.routes_toolbar);
+        routesToolbar.setTitle(R.string.routes_toolbar_title);
+        setSupportActionBar(routesToolbar);
 
         // Sets RecyclerView
         recyclerView = findViewById(R.id.recycler_view);

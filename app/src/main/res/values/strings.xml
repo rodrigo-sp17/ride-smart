@@ -16,4 +16,5 @@
     <string name="rationale_message">This app relies on location services to provide route recording and route monitoring. All the location data is stored locally on your phone, and we do not collect such information for any purposes whatsoever.</string>
     <string name="permission_not_granted">Can\'t start! Location permissions not granted!</string>
     <string name="go_button_new">START NEW ROUTE</string>
+    <string name="routes_toolbar_title">Routes List</string>
 </resources>
