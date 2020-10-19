@@ -184,8 +184,12 @@ public class RideActivity extends AppCompatActivity
         stopButton.setVisibility(View.GONE);
 
         goButton.setVisibility(View.VISIBLE);
-        goButton.setText(R.string.go_button_new);
+        goButton.setText(R.string.go_button_default);
         goButton.setBackgroundColor(Color.GREEN);
+
+        Intent intent = new Intent(this, DisplayActivity.class);
+        intent.putExtra("id", route.getDetails().getRouteId());
+        this.startActivity(intent);
     }
 
 
@@ -354,6 +358,7 @@ public class RideActivity extends AppCompatActivity
     private void saveRoute(Route route) {
         RouteDAO dao = database.routeDAO();
         long routeId = dao.insertRouteDetails(route.details);
+        route.getDetails().setRouteId(routeId);
 
         for (RouteNode node : route.routeNodes) {
             node.routeCreatorId = routeId;

@@ -30,4 +30,12 @@ public class RouteDetails {
         this.totalDistance = 0;
         this.routeDuration = 0;
     }
+
+    public long getRouteId() {
+        return this.routeId;
+    }
+
+    public void setRouteId(long id) {
+        this.routeId = id;
+    }
 }
