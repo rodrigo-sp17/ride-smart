@@ -15,7 +15,6 @@ public class RoutesActivity extends AppCompatActivity {
     private RecyclerView recyclerView;
     private RoutesAdapter routesAdapter;
     private RecyclerView.LayoutManager layoutManager;
-    private SwipeToDeleteCallback swipeCallback;
 
     public static RideDatabase database;
 

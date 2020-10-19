@@ -1,10 +1,13 @@
 package com.github.ridesmart;
 
 import android.location.Location;
+import android.util.Log;
 
 import androidx.room.Embedded;
 import androidx.room.Ignore;
 import androidx.room.Relation;
+
+import com.google.android.gms.maps.model.PolylineOptions;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +16,11 @@ public class Route {
 
     // Defines the beginning of a turn, in degrees
     @Ignore
-    public final float MIN_TURN_BEARING = 20;
+    public static final float MIN_TURN_BEARING = 12;
 
     @Embedded
     public RouteDetails details;
+
 
     @Relation(
             parentColumn = "routeId",
@@ -33,7 +37,7 @@ public class Route {
     @Ignore
     private boolean isTurning;
     @Ignore
-    private float lastBearing;
+    private float lastBearingDifference;
     @Ignore
     private Turn currentTurn;
 
@@ -43,41 +47,56 @@ public class Route {
         turns = new ArrayList<>();
     }
 
-    public void addLocation(Location location) {
+    /**
+     * Adds and processes a new location for this route.
+     * @param location  the location to add to this route
+     */
+    public void addLocation(final Location location) {
         routeNodes.add(new RouteNode(location));
 
+        // If size is less than 2, there are not enough points to determine a turn
         int size = routeNodes.size();
-        if (size > 1) {
+        if (size > 2) {
             // Adds this last leg distance to total route distance
             float lastLegDistance = routeNodes.get(size - 2).distanceTo(location);
             details.totalDistance += lastLegDistance;
 
             // Calculates the corrected bearing change
-            float lastBearingDifference = routeNodes.get(size - 1).getBearing()
+            float bearingDifference = routeNodes.get(size - 1).getBearing()
                     - routeNodes.get(size - 2).getBearing();
-            lastBearingDifference = Turn.correctedBearingChange(lastBearingDifference);
+            bearingDifference = Turn.correctedBearingChange(bearingDifference);
 
-
+            // If is turning to the same side of the last heading change, it is probably turning
             if (isTurning) {
                 // If vehicle is turning to the same side, keep adding points to the turn
-                if (lastBearingDifference * lastBearing > 0) {
-                    currentTurn.addTurnPoint(location);
-                    lastBearing = lastBearingDifference;
+                if (bearingDifference * lastBearingDifference > 0) {
+                    currentTurn.addTurnPoint(routeNodes.get(size - 2));
                 } else {
-                    // If vehicle is not turning anymore, closes turn and adds it to route turns list
+                    // If vehicle is not turning anymore, closes turn and adds it to route turns
+                    // list
                     currentTurn.closeTurn();
                     turns.add(currentTurn);
                     isTurning = false;
-                    lastBearing = 0;
                 }
-            } else if (Math.abs(lastBearingDifference) > MIN_TURN_BEARING) {
-                // If vehicle is initiating a turn, creates turn object for recording turn points
-                currentTurn = new Turn(location);
-                lastBearing = location.getBearing();
+            } else if (Math.abs(bearingDifference) > MIN_TURN_BEARING) {
                 isTurning = true;
+                // Adds the point of abrupt bearing change
+                currentTurn = new Turn(routeNodes.get(size - 2));
             }
+            lastBearingDifference = bearingDifference;
         }
+    }
 
+    public RouteDetails getDetails() {
+        return details;
+    }
+
+    public List<RouteNode> getRouteNodes() {
+        return routeNodes;
+    }
+
+    public List<Turn> getTurns() {
+        return turns;
     }
 
     // Returns total route distance in KM/H

@@ -1,5 +1,6 @@
 package com.github.ridesmart;
 
+import android.content.Intent;
 import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +31,15 @@ public class RoutesAdapter extends RecyclerView.Adapter<RoutesAdapter.RouteViewH
         RouteViewHolder(View view) {
             super(view);
             containerView = view.findViewById(R.id.routes_row);
+            containerView.setOnClickListener(v -> {
+                Route current = (Route) containerView.getTag();
+                long routeId = current.details.routeId;
+                Intent intent = new Intent(v.getContext(), DisplayActivity.class);
+                intent.putExtra("id", routeId);
+
+                v.getContext().startActivity(intent);
+            });
+
             routeNameView = view.findViewById(R.id.route_name_text);
             routeDistanceView = view.findViewById(R.id.route_total_distance_text);
             routeDurationView = view.findViewById(R.id.route_total_duration_text);
@@ -87,6 +97,8 @@ public class RoutesAdapter extends RecyclerView.Adapter<RoutesAdapter.RouteViewH
     public int getItemCount() {
         return routes.size();
     }
+
+
 
     public void deleteItem(int position) {
         recentlyDeletedRoute = routes.get(position);

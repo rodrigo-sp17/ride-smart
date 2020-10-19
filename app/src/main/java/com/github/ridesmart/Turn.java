@@ -2,14 +2,10 @@ package com.github.ridesmart;
 
 import android.location.Location;
 
-import androidx.room.ColumnInfo;
 import androidx.room.Embedded;
 import androidx.room.Entity;
-import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
-
-import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,17 +23,17 @@ public class Turn {
 
     @Ignore
     // Establishes max turn bearing at 0.200s for a typical vehicle. Default is 45 (degrees).
-    private final static float MAX_TURN_BEARING = 45;
+    private final static float MAX_TURN_BEARING = 180;
 
     @Ignore
     private List<Location> turnPoints;
 
     @Embedded(prefix = "init_")
-    public Coordinates initialTurnPosition;
+    public Coordinate initialTurnPosition;
     @Embedded(prefix = "mid_")
-    public Coordinates middleTurnPosition;
+    public Coordinate middleTurnPosition;
     @Embedded(prefix = "final_")
-    public Coordinates finalTurnPosition;
+    public Coordinate finalTurnPosition;
 
     public float avgTurnSpeed;
     public float maxEntrySpeed;
@@ -51,16 +47,16 @@ public class Turn {
         turnPoints = new ArrayList<>();
         turnPoints.add(location);
 
-        initialTurnPosition = new Coordinates(location.getLatitude(), location.getLongitude());
+        initialTurnPosition = new Coordinate(location.getLatitude(), location.getLongitude());
 
         avgTurnSpeed = 0;
-        maxEntrySpeed = 0;
+        maxEntrySpeed = location.getSpeed();
         turnDirection = TurnDirection.UNDEFINED;
         turnBearing = 0;
     }
 
-    public Turn(long turnId, Coordinates initialTurnPosition, Coordinates middleTurnPosition,
-                Coordinates finalTurnPosition, float avgTurnSpeed,
+    public Turn(long turnId, Coordinate initialTurnPosition, Coordinate middleTurnPosition,
+                Coordinate finalTurnPosition, float avgTurnSpeed,
                 float maxEntrySpeed, float turnBearing) {
         this.turnId = turnId;
         this.initialTurnPosition = initialTurnPosition;
@@ -76,7 +72,6 @@ public class Turn {
         middleTurnPosition = calculateMiddleTurnPosition();
         finalTurnPosition = calculateFinalTurnPosition();
         avgTurnSpeed = calculateAvgTurnSpeed();
-        maxEntrySpeed = turnPoints.get(0).getSpeed();
         turnBearing = calculateTurnBearing();
     }
 
@@ -114,21 +109,26 @@ public class Turn {
         return totalBearingChange;
     }
 
-    private Coordinates calculateMiddleTurnPosition() {
+    private Coordinate calculateMiddleTurnPosition() {
         int middleIndex = turnPoints.size() / 2;
         Location l = turnPoints.get(middleIndex);
-        return new Coordinates(l.getLatitude(), l.getLongitude());
+        return new Coordinate(l.getLatitude(), l.getLongitude());
     }
 
-    private Coordinates calculateFinalTurnPosition() {
+    private Coordinate calculateFinalTurnPosition() {
         int finalIndex = turnPoints.size() - 1;
         Location l = turnPoints.get(finalIndex);
-        return new Coordinates(l.getLatitude(), l.getLongitude());
+        return new Coordinate(l.getLatitude(), l.getLongitude());
     }
 
-    /** Checks if bearing change is greater than possible for a car. If true, it is probably
-      * a transition between 360 and 0 degrees, and returns the corrected bearing change
-     * */
+    /**
+     * Checks if bearing change is greater than possible for a car. If true, it is probably
+     * a transition between 360 and 0 degrees, and returns the corrected bearing change
+     *
+     * @param bearingChange the bearing change to analyse, calculated as final bearing - initial
+     *                      bearing
+     * @return  the probable real bearing change, being < 0 for a left turn, and >0 for a right turn
+     */
     public static float correctedBearingChange(float bearingChange) {
         float result = bearingChange;
         if (Math.abs(result) > MAX_TURN_BEARING) {
@@ -165,7 +165,15 @@ public class Turn {
         return maxEntrySpeed;
     }
 
+    public Coordinate getInitialTurnPosition() {
+        return initialTurnPosition;
+    }
 
+    public Coordinate getMiddleTurnPosition() {
+        return middleTurnPosition;
+    }
 
-
+    public Coordinate getFinalTurnPosition() {
+        return finalTurnPosition;
+    }
 }

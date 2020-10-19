@@ -27,6 +27,10 @@ public interface RouteDAO {
     @Query("SELECT * FROM routedetails")
     List<Route> getAllRoutes();
 
+    @Transaction
+    @Query("SELECT * FROM routedetails WHERE routeId = :id ")
+    Route getRouteFromId(long id);
+
     @Update
     void updateRouteDetails(RouteDetails routeDetails);
 
