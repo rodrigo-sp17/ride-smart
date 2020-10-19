@@ -36,6 +36,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -365,8 +366,7 @@ public class RideActivity extends AppCompatActivity
         }
     }
 
-
-    private class RSReceiver extends BroadcastReceiver {
+    private final class RSReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
             Location location = intent.getParcelableExtra(RSLocationService.EXTRA_LOCATION);
@@ -375,6 +375,11 @@ public class RideActivity extends AppCompatActivity
                 // Gets last location from result, updates field and adds to route
                 lastKnownLocation = location;
                 route.addLocation(lastKnownLocation);
+
+                // Moves camera to received position
+                map.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                        new LatLng(lastKnownLocation.getLatitude(),
+                                lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
 
                 /*
                     Sets speedView with last location speed info, in km/h
