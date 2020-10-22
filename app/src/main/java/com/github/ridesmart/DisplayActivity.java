@@ -6,6 +6,7 @@ import androidx.room.Room;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,7 +17,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public class DisplayActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -28,6 +34,14 @@ public class DisplayActivity extends AppCompatActivity implements OnMapReadyCall
 
     private Route displayedRoute;
 
+    Toolbar displayToolbar;
+
+    private TextView timeView;
+    private TextView distanceView;
+    private TextView avgSpeedView;
+    private TextView maxSpeedView;
+    private TextView turnsView;
+
     private RideDatabase database;
 
 
@@ -36,8 +50,15 @@ public class DisplayActivity extends AppCompatActivity implements OnMapReadyCall
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_display);
 
-        Toolbar displayToolbar = findViewById(R.id.display_toolbar);
+        displayToolbar = findViewById(R.id.display_toolbar);
         setSupportActionBar(displayToolbar);
+        displayToolbar.setTitle(R.string.display_toolbar_title);
+
+        timeView = findViewById(R.id.time_text);
+        distanceView = findViewById(R.id.total_distance_text);
+        avgSpeedView = findViewById(R.id.avg_speed_text);
+        maxSpeedView = findViewById(R.id.max_speed_text);
+        turnsView = findViewById(R.id.num_turns_text);
 
         // Initiates database
         database = Room.databaseBuilder(getApplicationContext(), RideDatabase.class, "rideDB" )
@@ -49,8 +70,6 @@ public class DisplayActivity extends AppCompatActivity implements OnMapReadyCall
                 .findFragmentById(R.id.display_map);
         assert mapFragment != null;
         mapFragment.getMapAsync(this);
-
-
     }
 
     @Override
@@ -61,9 +80,15 @@ public class DisplayActivity extends AppCompatActivity implements OnMapReadyCall
 
     private void loadRoute(long id) {
         displayedRoute = database.routeDAO().getRouteFromId(id);
+        String title = String.format(Locale.getDefault(),
+                "%s - %d",
+                getResources().getString(R.string.display_toolbar_title),
+                displayedRoute.getDetails().getRouteId());
+        displayToolbar.setTitle(title);
 
         buildPolyline();
         markTurns();
+        readDashboard();
     }
 
     private void buildPolyline() {
@@ -79,7 +104,8 @@ public class DisplayActivity extends AppCompatActivity implements OnMapReadyCall
         displayedTrack = displayMap.addPolyline(options);
 
         // Moves camera for 1st point off Polyline
-        displayMap.moveCamera(CameraUpdateFactory.newLatLngZoom(options.getPoints().get(0), DEFAULT_ZOOM));
+        displayMap.moveCamera(CameraUpdateFactory.newLatLngZoom(options.getPoints().get(0),
+                DEFAULT_ZOOM));
     }
 
     private void markTurns() {
@@ -92,16 +118,42 @@ public class DisplayActivity extends AppCompatActivity implements OnMapReadyCall
 
             displayMap.addMarker(new MarkerOptions()
                     .position(t.getInitialTurnPosition().getCoordinatesAsLatLng())
-                    .title("Initial - " + String.format("%.1f km/h", entrySpeedInKmH)));
+                    .title("Entry Speed - " + String.format(Locale.getDefault(), "%.1f km/h",
+                            entrySpeedInKmH)));
 
             displayMap.addMarker(new MarkerOptions()
                     .position(t.getMiddleTurnPosition().getCoordinatesAsLatLng())
-                    .title("Middle - " + String.format("%.1f km/h", turnSpeedInKmH)));
-
+                    .title("Avg. Speed - " + String.format(Locale.getDefault(), "%.1f km/h",
+                            turnSpeedInKmH)));
 
             displayMap.addMarker(new MarkerOptions()
                     .position(t.getFinalTurnPosition().getCoordinatesAsLatLng())
-                    .title("Final - " + String.format("%.1f km/h", turnSpeedInKmH)));
+                    .title("Turn Exit"));
         }
+    }
+
+    // Fills fields with route data
+    private void readDashboard() {
+        String duration = String.format(Locale.getDefault(), "%d:%d:%d",
+                TimeUnit.MILLISECONDS.toHours(displayedRoute.getDuration()),
+                (TimeUnit.MILLISECONDS.toMinutes(displayedRoute.getDuration()) % 60),
+                (TimeUnit.MILLISECONDS.toSeconds(displayedRoute.getDuration()) % 60)
+                );
+        timeView.setText(duration);
+
+        // TODO - proper speed conversion
+        String distance = String.format(Locale.getDefault(), "%.2f km",
+                displayedRoute.getTotalDistance());
+        distanceView.setText(distance);
+
+        String avgSpeedInKMH = String.format(Locale.getDefault(), "%.1f km/h",
+                (displayedRoute.getAvgSpeed() * 3.6));
+        avgSpeedView.setText(avgSpeedInKMH);
+
+        String maxSpeedInKMH = String.format(Locale.getDefault(), "%.1f km/h",
+                (displayedRoute.getMaxSpeed() * 3.6));
+        maxSpeedView.setText(maxSpeedInKMH);
+
+        turnsView.setText(Long.valueOf(displayedRoute.getNumTurns()).toString());
     }
 }

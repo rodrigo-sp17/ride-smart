@@ -36,7 +36,6 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -347,7 +346,7 @@ public class RideActivity extends AppCompatActivity
         // TODO - wrap route details
         stopService(serviceIntent);
         long routeDuration = SystemClock.elapsedRealtime() - timeView.getBase();
-        route.setRouteDuration(routeDuration);
+        route.setDuration(routeDuration);
         // TODO - save route to disk
         saveRoute(route);
 

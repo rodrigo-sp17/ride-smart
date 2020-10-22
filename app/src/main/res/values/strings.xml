@@ -19,4 +19,10 @@
     <string name="routes_toolbar_title">Routes List</string>
     <string name="snackbar_undo_text">Route deleted</string>
     <string name="snackbar_undo_action">Undo</string>
+    <string name="display_toolbar_title">Route Statistics</string>
+    <string name="total_distance_label">Total Distance</string>
+    <string name="avg_speed_label">AVG Speed</string>
+    <string name="max_speed_label">Max Speed</string>
+    <string name="num_turns_label">Turns</string>
+    <string name="time_label">Total Time</string>
 </resources>

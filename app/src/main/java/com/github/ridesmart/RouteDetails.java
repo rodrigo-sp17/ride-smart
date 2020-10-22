@@ -31,11 +31,27 @@ public class RouteDetails {
         this.routeDuration = 0;
     }
 
+    /**
+     * Returns the id of the route.
+     * @return id of the route
+     */
     public long getRouteId() {
         return this.routeId;
     }
 
+    /**
+     * Sets the id of the route.
+     * @param id    database created id for this route
+     */
     public void setRouteId(long id) {
         this.routeId = id;
+    }
+
+    public float getTotalDistance() {
+        return totalDistance;
+    }
+
+    public long getRouteDuration() {
+        return routeDuration;
     }
 }

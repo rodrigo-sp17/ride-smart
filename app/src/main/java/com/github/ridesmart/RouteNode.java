@@ -45,4 +45,19 @@ public class RouteNode extends Location {
     public Coordinate getPosition() {
         return position;
     }
+
+    @Override
+    public float getBearing() {
+        return bearing;
+    }
+
+    @Override
+    public float getSpeed() {
+        return speed;
+    }
+
+    @Override
+    public long getTime() {
+        return time;
+    }
 }

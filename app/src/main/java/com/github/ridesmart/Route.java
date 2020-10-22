@@ -16,11 +16,10 @@ public class Route {
 
     // Defines the beginning of a turn, in degrees
     @Ignore
-    public static final float MIN_TURN_BEARING = 12;
+    private static final float MIN_TURN_BEARING = 12;
 
     @Embedded
     public RouteDetails details;
-
 
     @Relation(
             parentColumn = "routeId",
@@ -99,13 +98,63 @@ public class Route {
         return turns;
     }
 
-    // Returns total route distance in KM/H
+    /**
+     * Returns total route distance, in KM
+     * @return total route distance in KM
+     */
     public float getTotalDistance() {
         // TODO - implement proper distance conversion
         return details.totalDistance / 1000;
     }
 
-    public void setRouteDuration(Long millis) {
+    /**
+     * Returns route duration, in milliseconds
+     * @return  tbe duration of the route, in milliseconds
+     */
+    public long getDuration() {
+        return details.getRouteDuration();
+    }
+
+    public void setDuration(Long millis) {
         details.routeDuration = millis;
+    }
+
+    /**
+     * Returns average speed of route, in m/s
+     * @return  average speed of route, in m/s
+     */
+    public double getAvgSpeed() {
+        float totalSpeed = 0;
+        // Java Streams not used because of compatibility issues
+        for (RouteNode node : routeNodes) {
+            totalSpeed += node.getSpeed();
+        }
+
+        // Returns average
+        return totalSpeed / routeNodes.size();
+    }
+
+    /**
+     * Returns maximum speed reached during the route
+     * @return maximum speed, in m/s
+     */
+    public double getMaxSpeed() {
+        double maxSpeed = 0;
+        for (RouteNode node : routeNodes) {
+            double speed = node.getSpeed();
+            if (speed > maxSpeed) {
+                maxSpeed = speed;
+            }
+        }
+
+        return maxSpeed;
+    }
+
+    /**
+     * Returns the number of turns of this route
+     * @return number of turns
+     */
+    public long getNumTurns() {
+        return turns.size();
     }
 }
