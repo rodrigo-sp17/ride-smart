@@ -1,4 +1,4 @@
-package com.github.ridesmart;
+package com.github.ridesmart.entities;
 
 import androidx.room.Dao;
 import androidx.room.Delete;
@@ -7,6 +7,11 @@ import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
+
+import com.github.ridesmart.entities.Route;
+import com.github.ridesmart.entities.RouteDetails;
+import com.github.ridesmart.entities.RouteNode;
+import com.github.ridesmart.entities.Turn;
 
 import java.util.List;
 
@@ -21,6 +26,35 @@ public interface RouteDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     long insertRouteNodes(RouteNode node);
+
+    default long saveRoute(Route route) {
+        long routeId = insertRouteDetails(route.getDetails());
+        route.getDetails().setRouteId(routeId);
+
+        for (RouteNode node : route.getRouteNodes()) {
+            node.setRouteCreatorId(routeId);
+            insertRouteNodes(node);
+        }
+
+        for (Turn turn : route.getTurns()) {
+            turn.setRouteCreatorId(routeId);
+            insertTurns(turn);
+        }
+
+        return routeId;
+    }
+
+    default void deleteRoute(Route route) {
+        deleteRouteDetails(route.getDetails());
+
+        for (RouteNode node : route.getRouteNodes()) {
+            deleteRouteNodes(node);
+        }
+
+        for (Turn turn : route.getTurns()) {
+            deleteTurns(turn);
+        }
+    }
 
 
     @Transaction

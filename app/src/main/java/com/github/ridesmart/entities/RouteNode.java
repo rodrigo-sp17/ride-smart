@@ -1,4 +1,4 @@
-package com.github.ridesmart;
+package com.github.ridesmart.entities;
 
 import android.location.Location;
 
@@ -10,19 +10,19 @@ import androidx.room.PrimaryKey;
 public class RouteNode extends Location {
 
     @PrimaryKey(autoGenerate = true)
-    public long routeNodeId;
+    private long routeNodeId;
 
     // Foreign key - the route that contains the node
-    public long routeCreatorId;
+    private long routeCreatorId;
 
     @Embedded
-    public Coordinate position;
+    private final Coordinate position;
 
-    public float bearing;
+    private final float bearing;
 
-    public float speed;
+    private final float speed;
 
-    public long time;
+    private final long time;
 
     // Converts a Location object to a persistable RouteNode object, keeping relevant information
     public RouteNode(Location l) {
@@ -42,6 +42,10 @@ public class RouteNode extends Location {
         this.time = time;
     }
 
+    public long getRouteNodeId() {
+        return routeNodeId;
+    }
+
     public Coordinate getPosition() {
         return position;
     }
@@ -59,5 +63,13 @@ public class RouteNode extends Location {
     @Override
     public long getTime() {
         return time;
+    }
+
+    public long getRouteCreatorId() {
+        return routeCreatorId;
+    }
+
+    public void setRouteCreatorId(long routeCreatorId) {
+        this.routeCreatorId = routeCreatorId;
     }
 }

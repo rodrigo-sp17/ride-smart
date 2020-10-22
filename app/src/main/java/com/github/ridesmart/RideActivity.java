@@ -29,6 +29,8 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import com.github.ridesmart.entities.Route;
+import com.github.ridesmart.entities.RouteDAO;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -187,7 +189,7 @@ public class RideActivity extends AppCompatActivity
         goButton.setBackgroundColor(Color.GREEN);
 
         Intent intent = new Intent(this, DisplayActivity.class);
-        intent.putExtra("id", route.getDetails().getRouteId());
+        intent.putExtra("id", route.getRouteId());
         this.startActivity(intent);
     }
 
@@ -356,18 +358,7 @@ public class RideActivity extends AppCompatActivity
     // Uses DAO to save route to database
     private void saveRoute(Route route) {
         RouteDAO dao = database.routeDAO();
-        long routeId = dao.insertRouteDetails(route.details);
-        route.getDetails().setRouteId(routeId);
-
-        for (RouteNode node : route.routeNodes) {
-            node.routeCreatorId = routeId;
-            dao.insertRouteNodes(node);
-        }
-
-        for (Turn turn : route.turns) {
-            turn.routeCreatorId = routeId;
-            dao.insertTurns(turn);
-        }
+        dao.saveRoute(route);
     }
 
     private final class RSReceiver extends BroadcastReceiver {

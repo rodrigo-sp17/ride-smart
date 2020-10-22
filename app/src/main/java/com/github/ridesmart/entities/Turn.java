@@ -1,4 +1,4 @@
-package com.github.ridesmart;
+package com.github.ridesmart.entities;
 
 import android.location.Location;
 
@@ -16,10 +16,10 @@ public class Turn {
     public enum TurnDirection {LEFT, RIGHT, UNDEFINED}
 
     @PrimaryKey (autoGenerate = true)
-    public long turnId;
+    private long turnId;
 
     // RouteId foreign key - identifies this turn as belonging to a specific route
-    public long routeCreatorId;
+    private long routeCreatorId;
 
     @Ignore
     // Establishes max turn bearing at 0.200s for a typical vehicle. Default is 45 (degrees).
@@ -29,15 +29,15 @@ public class Turn {
     private List<Location> turnPoints;
 
     @Embedded(prefix = "init_")
-    public Coordinate initialTurnPosition;
+    private Coordinate initialTurnPosition;
     @Embedded(prefix = "mid_")
-    public Coordinate middleTurnPosition;
+    private Coordinate middleTurnPosition;
     @Embedded(prefix = "final_")
-    public Coordinate finalTurnPosition;
+    private Coordinate finalTurnPosition;
 
-    public float avgTurnSpeed;
-    public float maxEntrySpeed;
-    public float turnBearing;
+    private float avgTurnSpeed;
+    private float maxEntrySpeed;
+    private float turnBearing;
 
     @Ignore
     private TurnDirection turnDirection;
@@ -141,16 +141,24 @@ public class Turn {
         return result;
     }
 
+    public void setRouteCreatorId(long routeCreatorId) {
+        this.routeCreatorId = routeCreatorId;
+    }
+
     public void addTurnPoint(Location location) {
         turnPoints.add(location);
     }
 
-    public float getAvgTurnSpeed() {
-        return avgTurnSpeed;
+    public long getTurnId() {
+        return turnId;
     }
 
-    public void setAvgTurnSpeed(float speed) {
-        avgTurnSpeed = speed;
+    public long getRouteCreatorId() {
+        return routeCreatorId;
+    }
+
+    public float getAvgTurnSpeed() {
+        return avgTurnSpeed;
     }
 
     public float getTurnBearing() {

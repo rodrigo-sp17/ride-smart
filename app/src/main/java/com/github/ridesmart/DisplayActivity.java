@@ -8,18 +8,17 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.github.ridesmart.entities.Route;
+import com.github.ridesmart.entities.RouteNode;
+import com.github.ridesmart.entities.Turn;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.TimeUnit;
@@ -83,7 +82,7 @@ public class DisplayActivity extends AppCompatActivity implements OnMapReadyCall
         String title = String.format(Locale.getDefault(),
                 "%s - %d",
                 getResources().getString(R.string.display_toolbar_title),
-                displayedRoute.getDetails().getRouteId());
+                displayedRoute.getRouteId());
         displayToolbar.setTitle(title);
 
         buildPolyline();

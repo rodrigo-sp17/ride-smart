@@ -1,10 +1,14 @@
-package com.github.ridesmart;
+package com.github.ridesmart.entities;
 
 import com.google.android.gms.maps.model.LatLng;
 
+/**
+ * Immutable type representing a Latitude/Longitude coordinate pair. It was implemented instead of
+ * using Android`s default LatLng to allow for database embedded saving through a DAO.
+ */
 public class Coordinate {
-    private double latitude;
-    private double longitude;
+    private final double latitude;
+    private final double longitude;
 
     public Coordinate(double latitude, double longitude) {
         this.latitude = latitude;
@@ -15,16 +19,8 @@ public class Coordinate {
         return latitude;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
     public double getLongitude() {
         return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
     }
 
     public LatLng getCoordinatesAsLatLng() {

@@ -1,15 +1,13 @@
-package com.github.ridesmart;
+package com.github.ridesmart.entities;
 
 import android.location.Location;
-import android.util.Log;
 
 import androidx.room.Embedded;
 import androidx.room.Ignore;
 import androidx.room.Relation;
 
-import com.google.android.gms.maps.model.PolylineOptions;
-
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Route {
@@ -19,19 +17,19 @@ public class Route {
     private static final float MIN_TURN_BEARING = 12;
 
     @Embedded
-    public RouteDetails details;
+    private RouteDetails details;
 
     @Relation(
             parentColumn = "routeId",
             entityColumn = "routeCreatorId"
     )
-    public List<RouteNode> routeNodes;
+    private List<RouteNode> routeNodes;
 
     @Relation(
             parentColumn = "routeId",
             entityColumn = "routeCreatorId"
     )
-    public List<Turn> turns;
+    private List<Turn> turns;
 
     @Ignore
     private boolean isTurning;
@@ -58,7 +56,7 @@ public class Route {
         if (size > 2) {
             // Adds this last leg distance to total route distance
             float lastLegDistance = routeNodes.get(size - 2).distanceTo(location);
-            details.totalDistance += lastLegDistance;
+            details.addDistance(lastLegDistance);
 
             // Calculates the corrected bearing change
             float bearingDifference = routeNodes.get(size - 1).getBearing()
@@ -86,16 +84,36 @@ public class Route {
         }
     }
 
-    public RouteDetails getDetails() {
+    protected RouteDetails getDetails() {
         return details;
     }
 
     public List<RouteNode> getRouteNodes() {
-        return routeNodes;
+        return Collections.unmodifiableList(routeNodes);
     }
 
     public List<Turn> getTurns() {
-        return turns;
+        return Collections.unmodifiableList(turns);
+    }
+
+    protected void setDetails(RouteDetails details) {
+        this.details = details;
+    }
+
+    protected void setRouteNodes(List<RouteNode> routeNodes) {
+        this.routeNodes = routeNodes;
+    }
+
+    protected void setTurns(List<Turn> turns) {
+        this.turns = turns;
+    }
+
+    /**
+     * Returns this route`s id
+     * @return  id of this route as set by the database
+     */
+    public long getRouteId() {
+        return details.getRouteId();
     }
 
     /**
@@ -104,7 +122,7 @@ public class Route {
      */
     public float getTotalDistance() {
         // TODO - implement proper distance conversion
-        return details.totalDistance / 1000;
+        return details.getTotalDistance() / 1000;
     }
 
     /**
@@ -116,7 +134,7 @@ public class Route {
     }
 
     public void setDuration(Long millis) {
-        details.routeDuration = millis;
+        details.setRouteDuration(millis);
     }
 
     /**

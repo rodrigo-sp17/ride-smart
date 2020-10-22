@@ -1,23 +1,20 @@
-package com.github.ridesmart;
+package com.github.ridesmart.entities;
 
 import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
-import androidx.room.Relation;
-
-import java.util.List;
 
 @Entity
 public class RouteDetails {
 
     @PrimaryKey(autoGenerate = true)
-    public long routeId;
+    private long routeId;
 
     // Total route distance in m
-    public float totalDistance;
+    private float totalDistance;
 
     // Route duration in millis
-    public long routeDuration;
+    private long routeDuration;
 
     public RouteDetails(long routeId, float totalDistance, long routeDuration) {
         this.routeId = routeId;
@@ -35,7 +32,7 @@ public class RouteDetails {
      * Returns the id of the route.
      * @return id of the route
      */
-    public long getRouteId() {
+    protected long getRouteId() {
         return this.routeId;
     }
 
@@ -43,15 +40,27 @@ public class RouteDetails {
      * Sets the id of the route.
      * @param id    database created id for this route
      */
-    public void setRouteId(long id) {
+    protected void setRouteId(long id) {
         this.routeId = id;
     }
 
-    public float getTotalDistance() {
+    protected float getTotalDistance() {
         return totalDistance;
     }
 
-    public long getRouteDuration() {
+    protected void setTotalDistance(float distance) {
+        totalDistance = distance;
+    }
+
+    protected void addDistance(float distance) {
+        totalDistance += distance;
+    }
+
+    protected long getRouteDuration() {
         return routeDuration;
+    }
+
+    protected void setRouteDuration(long millis) {
+        routeDuration = millis;
     }
 }
