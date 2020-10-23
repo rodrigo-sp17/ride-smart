@@ -25,4 +25,8 @@
     <string name="max_speed_label">Max Speed</string>
     <string name="num_turns_label">Turns</string>
     <string name="time_label">Total Time</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">Ok</string>
+    <string name="route_name_dialog_message">Name</string>
+    <string name="route_name_dialog_title">Choose a route name</string>
 </resources>

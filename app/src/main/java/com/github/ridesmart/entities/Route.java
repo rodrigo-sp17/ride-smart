@@ -175,4 +175,12 @@ public class Route {
     public long getNumTurns() {
         return turns.size();
     }
+
+    public String getName() {
+        return details.getRouteName();
+    }
+
+    public void setName(String name) {
+        details.setRouteName(name);
+    }
 }

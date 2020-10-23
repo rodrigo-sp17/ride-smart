@@ -7,8 +7,19 @@
     android:id="@+id/routes_row"
     android:clickable="true"
     android:focusable="true"
-    android:padding="10dp"
+    android:padding="5dp"
     >
+
+    <TextView
+        android:id="@+id/route_id_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:fontFamily="sans-serif"
+        android:paddingStart="5dp"
+        android:paddingTop="10dp"
+        android:paddingEnd="5dp"
+        android:paddingBottom="10dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"/>
 
     <TextView
         android:id="@+id/route_name_text"
@@ -17,7 +28,7 @@
         android:fontFamily="sans-serif"
         android:paddingStart="5dp"
         android:paddingTop="10dp"
-        android:paddingEnd="30dp"
+        android:paddingEnd="5dp"
         android:paddingBottom="10dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
@@ -28,7 +39,7 @@
         android:fontFamily="sans-serif"
         android:paddingStart="5dp"
         android:paddingTop="10dp"
-        android:paddingEnd="30dp"
+        android:paddingEnd="5dp"
         android:paddingBottom="10dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 
@@ -39,7 +50,7 @@
         android:fontFamily="sans-serif"
         android:paddingStart="5dp"
         android:paddingTop="10dp"
-        android:paddingEnd="30dp"
+        android:paddingEnd="5dp"
         android:paddingBottom="10dp"
         android:textAppearance="@style/TextAppearance.AppCompat.Large" />
 

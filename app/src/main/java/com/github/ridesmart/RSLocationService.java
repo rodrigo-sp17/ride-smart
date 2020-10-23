@@ -120,7 +120,7 @@ public class RSLocationService extends Service {
     private void onNewLocation(Location location) {
         lastLocation = location;
 
-        // TODO: Notify listeners of position change
+        // Notifies listeners of position change
         Intent intent = new Intent();
         intent.setAction("LOCATION_CHANGED");
         intent.putExtra(EXTRA_LOCATION, location);

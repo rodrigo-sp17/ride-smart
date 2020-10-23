@@ -60,9 +60,7 @@ public class DisplayActivity extends AppCompatActivity implements OnMapReadyCall
         turnsView = findViewById(R.id.num_turns_text);
 
         // Initiates database
-        database = Room.databaseBuilder(getApplicationContext(), RideDatabase.class, "rideDB" )
-                .allowMainThreadQueries()
-                .build();
+        database = RideDatabase.getInstance(this);
 
         // Gets map fragment
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -80,9 +78,9 @@ public class DisplayActivity extends AppCompatActivity implements OnMapReadyCall
     private void loadRoute(long id) {
         displayedRoute = database.routeDAO().getRouteFromId(id);
         String title = String.format(Locale.getDefault(),
-                "%s - %d",
+                "%s - %s",
                 getResources().getString(R.string.display_toolbar_title),
-                displayedRoute.getRouteId());
+                displayedRoute.getName());
         displayToolbar.setTitle(title);
 
         buildPolyline();

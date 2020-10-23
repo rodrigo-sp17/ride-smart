@@ -24,9 +24,7 @@ public class RoutesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_routes);
 
         // Initiates database
-        database = Room.databaseBuilder(getApplicationContext(), RideDatabase.class, "rideDB" )
-                .allowMainThreadQueries()
-                .build();
+        database = RideDatabase.getInstance(this);
 
         // Sets up the toolbar
         Toolbar routesToolbar = findViewById(R.id.routes_toolbar);

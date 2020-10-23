@@ -1,13 +1,16 @@
 package com.github.ridesmart;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.room.Room;
 
 import android.Manifest;
+import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -18,12 +21,14 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.SystemClock;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,13 +51,14 @@ import com.google.android.gms.tasks.Task;
 import java.util.Locale;
 
 public class RideActivity extends AppCompatActivity
-        implements OnMapReadyCallback{
+        implements OnMapReadyCallback, RouteNameDialogFragment.RouteNameDialogListener {
 
     private static final String TAG = RideActivity.class.getSimpleName();
     private GoogleMap map;
     private Polyline track;
     private PolylineOptions polylineOptions;
     private Route route;
+
 
     // Location permission handling
     private static final int PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION = 1;
@@ -95,9 +101,7 @@ public class RideActivity extends AppCompatActivity
         setSupportActionBar(rideToolbar);
 
         // Initiates database
-        database = Room.databaseBuilder(getApplicationContext(), RideDatabase.class, "rideDB" )
-                .allowMainThreadQueries()
-                .build();
+        database = RideDatabase.getInstance(this);
 
         // View elements
         timeView = findViewById(R.id.time_view);
@@ -187,10 +191,6 @@ public class RideActivity extends AppCompatActivity
         goButton.setVisibility(View.VISIBLE);
         goButton.setText(R.string.go_button_default);
         goButton.setBackgroundColor(Color.GREEN);
-
-        Intent intent = new Intent(this, DisplayActivity.class);
-        intent.putExtra("id", route.getRouteId());
-        this.startActivity(intent);
     }
 
 
@@ -327,7 +327,8 @@ public class RideActivity extends AppCompatActivity
             timeView.start();
 
         } else {
-            Toast.makeText(this, R.string.permission_not_granted, Toast.LENGTH_LONG).show();
+            Toast.makeText(this, R.string.permission_not_granted,
+                    Toast.LENGTH_LONG).show();
         }
     }
 
@@ -345,12 +346,16 @@ public class RideActivity extends AppCompatActivity
     }
 
     private void stopRecording() {
-        // TODO - wrap route details
+
         stopService(serviceIntent);
+
+        // Wraps route details
         long routeDuration = SystemClock.elapsedRealtime() - timeView.getBase();
         route.setDuration(routeDuration);
-        // TODO - save route to disk
-        saveRoute(route);
+
+        // Shows prompt for setting route name
+        DialogFragment dialog = new RouteNameDialogFragment();
+        dialog.show(getSupportFragmentManager(), "route_name");
 
         isRecording = false;
     }
@@ -359,6 +364,19 @@ public class RideActivity extends AppCompatActivity
     private void saveRoute(Route route) {
         RouteDAO dao = database.routeDAO();
         dao.saveRoute(route);
+    }
+
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog) {
+        RouteNameDialogFragment nameDialog = (RouteNameDialogFragment) dialog;
+        route.setName(nameDialog.getInput());
+
+        // Persists route
+        saveRoute(route);
+
+        Intent intent = new Intent(this, DisplayActivity.class);
+        intent.putExtra("id", route.getRouteId());
+        this.startActivity(intent);
     }
 
     private final class RSReceiver extends BroadcastReceiver {

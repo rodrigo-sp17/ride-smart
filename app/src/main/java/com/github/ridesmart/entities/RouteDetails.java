@@ -10,13 +10,16 @@ public class RouteDetails {
     @PrimaryKey(autoGenerate = true)
     private long routeId;
 
+    private String routeName;
+
     // Total route distance in m
     private float totalDistance;
 
     // Route duration in millis
     private long routeDuration;
 
-    public RouteDetails(long routeId, float totalDistance, long routeDuration) {
+    public RouteDetails(long routeId, String routeName, float totalDistance, long routeDuration) {
+        this.routeName = routeName;
         this.routeId = routeId;
         this.totalDistance = totalDistance;
         this.routeDuration = routeDuration;
@@ -62,5 +65,16 @@ public class RouteDetails {
 
     protected void setRouteDuration(long millis) {
         routeDuration = millis;
+    }
+
+    protected String getRouteName() {
+        if (routeName == null) {
+            routeName = "";
+        }
+        return routeName;
+    }
+
+    protected void setRouteName(String routeName) {
+        this.routeName = routeName;
     }
 }

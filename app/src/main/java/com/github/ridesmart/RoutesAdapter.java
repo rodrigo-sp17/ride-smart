@@ -21,6 +21,7 @@ public class RoutesAdapter extends RecyclerView.Adapter<RoutesAdapter.RouteViewH
     public class RouteViewHolder extends RecyclerView.ViewHolder {
 
         LinearLayout containerView;
+        TextView routeIdView;
         TextView routeNameView;
         TextView routeDistanceView;
         TextView routeDurationView;
@@ -37,6 +38,7 @@ public class RoutesAdapter extends RecyclerView.Adapter<RoutesAdapter.RouteViewH
                 v.getContext().startActivity(intent);
             });
 
+            routeIdView = view.findViewById(R.id.route_id_text);
             routeNameView = view.findViewById(R.id.route_name_text);
             routeDistanceView = view.findViewById(R.id.route_total_distance_text);
             routeDurationView = view.findViewById(R.id.route_total_duration_text);
@@ -68,10 +70,12 @@ public class RoutesAdapter extends RecyclerView.Adapter<RoutesAdapter.RouteViewH
     public void onBindViewHolder(@NonNull RouteViewHolder holder, int position) {
         Route current = routes.get(position);
 
-        holder.routeNameView.setText(String.format(
+        holder.routeIdView.setText(String.format(
                 Locale.getDefault(),
                 "%d",
                 current.getRouteId()));
+
+        holder.routeNameView.setText(current.getName());
 
         double durationMinutes = current.getDuration() / (1000.0 * 60.0);
         holder.routeDurationView.setText(String.format(
