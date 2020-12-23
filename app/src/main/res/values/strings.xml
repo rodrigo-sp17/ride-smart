@@ -31,4 +31,6 @@
     <string name="route_name_dialog_title">Choose a route name</string>
     <string name="ride_time_label">Total Route Time</string>
     <string name="speed_label">Speed</string>
+    <string name="add_new_route">Add new route</string>
+    <string name="start_new_route">Start new route?</string>
 </resources>

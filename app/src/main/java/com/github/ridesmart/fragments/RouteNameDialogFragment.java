@@ -1,4 +1,4 @@
-package com.github.ridesmart;
+package com.github.ridesmart.fragments;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -11,6 +11,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+
+import com.github.ridesmart.R;
 
 public class RouteNameDialogFragment extends DialogFragment {
 

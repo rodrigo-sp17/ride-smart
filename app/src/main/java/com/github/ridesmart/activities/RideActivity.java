@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.icu.util.TimeUnit;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -32,7 +33,7 @@ import androidx.appcompat.widget.Toolbar;
 import com.github.ridesmart.R;
 import com.github.ridesmart.RSLocationService;
 import com.github.ridesmart.RideDatabase;
-import com.github.ridesmart.RouteNameDialogFragment;
+import com.github.ridesmart.fragments.RouteNameDialogFragment;
 import com.github.ridesmart.entities.Route;
 import com.github.ridesmart.entities.RouteDAO;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -47,6 +48,9 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import java.time.Duration;
+import java.time.temporal.TemporalAmount;
+import java.time.temporal.TemporalUnit;
 import java.util.Locale;
 
 public class RideActivity extends AppCompatActivity
@@ -156,7 +160,26 @@ public class RideActivity extends AppCompatActivity
                 Intent intent = new Intent(this, RoutesActivity.class);
                 this.startActivity(intent);
                 return true;
-
+            case R.id.action_new:
+                if (isRecording) {pauseRecording();};
+                AlertDialog.Builder builder = new AlertDialog.Builder(this);
+                builder.setMessage(R.string.start_new_route)
+                        .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                // Resets route
+                                resetRoute();
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                return;
+                            }
+                        })
+                        .create()
+                        .show();
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -184,12 +207,6 @@ public class RideActivity extends AppCompatActivity
 
     public void onStopClick(View view) {
         stopRecording();
-        resumeButton.setVisibility(View.GONE);
-        stopButton.setVisibility(View.GONE);
-
-        goButton.setVisibility(View.VISIBLE);
-        goButton.setText(R.string.go_button_default);
-        goButton.setBackgroundColor(0xFF4CAF50);
     }
 
 
@@ -334,6 +351,12 @@ public class RideActivity extends AppCompatActivity
     private void pauseRecording() {
         timeWhenStopped = timeView.getBase() - SystemClock.elapsedRealtime();
         timeView.stop();
+
+        // Saves route duration
+        long routeDuration = SystemClock.elapsedRealtime() - timeView.getBase();
+        Log.d(TAG, Long.valueOf(routeDuration/ 1000).toString());
+        route.setDuration(routeDuration);
+
         stopService(serviceIntent);
         requestingLocationUpdates = false;
     }
@@ -345,16 +368,32 @@ public class RideActivity extends AppCompatActivity
     }
 
     private void stopRecording() {
-
+        timeWhenStopped = timeView.getBase() - SystemClock.elapsedRealtime();
+        timeView.stop();
         stopService(serviceIntent);
-
-        // Wraps route details
-        long routeDuration = SystemClock.elapsedRealtime() - timeView.getBase();
-        route.setDuration(routeDuration);
+        requestingLocationUpdates = false;
 
         // Shows prompt for setting route name
         DialogFragment dialog = new RouteNameDialogFragment();
         dialog.show(getSupportFragmentManager(), "route_name");
+    }
+
+    // Resets the route recording
+    private void resetRoute() {
+        map.clear();
+
+        // Resets fields
+        timeView.setBase(SystemClock.elapsedRealtime());
+        timeView.stop();
+        speedView.setText(R.string.speed_default);
+        distanceView.setText(R.string.distance_default);
+
+        // Arranges buttons
+        resumeButton.setVisibility(View.GONE);
+        stopButton.setVisibility(View.GONE);
+        goButton.setVisibility(View.VISIBLE);
+        goButton.setText(R.string.go_button_default);
+        goButton.setBackgroundColor(0xFF4CAF50);
 
         isRecording = false;
     }
@@ -373,9 +412,12 @@ public class RideActivity extends AppCompatActivity
         // Persists route
         saveRoute(route);
 
+        // Displays the route with full statistics
         Intent intent = new Intent(this, DisplayActivity.class);
         intent.putExtra("id", route.getRouteId());
         this.startActivity(intent);
+
+        resetRoute();
     }
 
     private final class RSReceiver extends BroadcastReceiver {
