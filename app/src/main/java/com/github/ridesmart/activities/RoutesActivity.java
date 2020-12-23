@@ -1,4 +1,4 @@
-package com.github.ridesmart;
+package com.github.ridesmart.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -6,9 +6,12 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.room.Room;
 
 import android.os.Bundle;
+
+import com.github.ridesmart.R;
+import com.github.ridesmart.RideDatabase;
+import com.github.ridesmart.RoutesAdapter;
 
 public class RoutesActivity extends AppCompatActivity {
 

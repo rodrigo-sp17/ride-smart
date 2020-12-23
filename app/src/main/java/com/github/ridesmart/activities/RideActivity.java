@@ -1,16 +1,13 @@
-package com.github.ridesmart;
+package com.github.ridesmart.activities;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
-import androidx.room.Room;
 
 import android.Manifest;
-import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -21,19 +18,21 @@ import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.SystemClock;
-import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import com.github.ridesmart.R;
+import com.github.ridesmart.RSLocationService;
+import com.github.ridesmart.RideDatabase;
+import com.github.ridesmart.RouteNameDialogFragment;
 import com.github.ridesmart.entities.Route;
 import com.github.ridesmart.entities.RouteDAO;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -190,7 +189,7 @@ public class RideActivity extends AppCompatActivity
 
         goButton.setVisibility(View.VISIBLE);
         goButton.setText(R.string.go_button_default);
-        goButton.setBackgroundColor(Color.GREEN);
+        goButton.setBackgroundColor(0xFF4CAF50);
     }
 
 

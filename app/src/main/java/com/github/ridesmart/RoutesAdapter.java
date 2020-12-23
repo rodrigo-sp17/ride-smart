@@ -10,6 +10,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.github.ridesmart.activities.DisplayActivity;
+import com.github.ridesmart.activities.RoutesActivity;
 import com.github.ridesmart.entities.Route;
 import com.github.ridesmart.entities.RouteDAO;
 import com.google.android.material.snackbar.Snackbar;

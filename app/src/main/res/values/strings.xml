@@ -29,4 +29,6 @@
     <string name="ok">Ok</string>
     <string name="route_name_dialog_message">Name</string>
     <string name="route_name_dialog_title">Choose a route name</string>
+    <string name="ride_time_label">Total Route Time</string>
+    <string name="speed_label">Speed</string>
 </resources>

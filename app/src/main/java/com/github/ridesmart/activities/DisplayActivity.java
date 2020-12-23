@@ -1,13 +1,14 @@
-package com.github.ridesmart;
+package com.github.ridesmart.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.room.Room;
 
 import android.graphics.Color;
 import android.os.Bundle;
 import android.widget.TextView;
 
+import com.github.ridesmart.R;
+import com.github.ridesmart.RideDatabase;
 import com.github.ridesmart.entities.Route;
 import com.github.ridesmart.entities.RouteNode;
 import com.github.ridesmart.entities.Turn;
